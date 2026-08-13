@@ -1,0 +1,47 @@
+name: Embedded C/C++ CI Pipeline
+
+# Trigger pipeline on every push or pull request to main
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  build-and-test:
+    name: Build & Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    
+    # Cross-Platform Build Matrix (Linux & Windows)
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+    # 1. Checkout repository code
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    # 2. Configure CMake (Fetches GTest & sets up build files)
+    - name: Configure CMake
+      run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+    # 3. Compile C Code and Google Test binaries with strict -Werror
+    - name: Build Executables
+      run: cmake --build build --config Release
+# 4. Run Google Test suite via CTest and export XML results
+    - name: Execute Google Tests
+      run: ctest --test-dir build -C Release --output-on-failure --test-action Test
+
+    # 5. Export Google Test XML Report (Save as Build Artifact)
+    - name: Generate XML Test Report
+      run: ./build/run_unit_tests --gtest_output=xml:build/test_report.xml
+      if: always() # Run even if tests fail so you get the report!
+
+    # 6. Upload Artifact to GitHub
+    - name: Upload Test Report Artifact
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-report-${{ matrix.os }}
+        path: build/test_report.xml
