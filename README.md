@@ -14,6 +14,7 @@ A zero-allocation **CAN Bus Frame Parsing & Telemetry Serialization Library** wr
 - **Defensive Validation:** Validates payload lengths (DLC <= 8), 11-bit vs 29-bit CAN IDs, and null pointer guards to prevent HardFaults.
 - **Fixed-Point Serialization:** Packs floating-point telemetry (temperature, battery status) into fixed byte layouts without standard library dynamic allocation (`malloc`).
 - **Host-Based Unit Testing:** Isolated testing running offline via GoogleTest framework.
-
+- Verified in Mac 10.4.2026.
+- MAC OS Version 4.10.2026.
 ---
 
